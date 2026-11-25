@@ -1,0 +1,191 @@
+/* TrustChain research dashboard — visual redesign (styles only; markup and logic unchanged).
+   Original stylesheet is kept as research.css.bak-before-redesign. */
+:root{
+  --navy:#1f1600;--navy-2:#f5b800;--blue:#f5b800;--blue-2:#d99a00;--teal:#e08a00;
+  --ink:#10213a;--muted:#5b6b82;--line:#dbe3ee;--card:#ffffff;--bg:#faf6ec;
+  --ok:#0f7a5c;--ok-bg:#e3f6ee;--warn-bg:#fff4d6;--warn:#7a5710;
+  --shadow:0 1px 2px rgba(10,27,51,.06),0 8px 24px -12px rgba(10,27,51,.18);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:Inter,"SF Pro Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:radial-gradient(1200px 500px at 90% -10%,rgba(245,184,0,.10),transparent 60%),
+             radial-gradient(900px 400px at -10% 0%,rgba(20,184,166,.08),transparent 55%),var(--bg);
+  -webkit-font-smoothing:antialiased}
+.research-shell{max-width:1120px;margin:auto;padding:32px 24px 48px}
+
+/* ---------- hero header ---------- */
+.research-shell header{position:relative;overflow:hidden;color:#2a1c00;border-radius:22px;padding:34px 36px 30px;margin-bottom:28px;
+  background:linear-gradient(135deg,#f2a900 0%,#f8c82a 55%,#ffe27a 100%);
+  box-shadow:0 18px 40px -20px rgba(160,105,0,.55)}
+.research-shell header::after{content:"";position:absolute;right:-70px;top:-70px;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(20,184,166,.35),rgba(245,184,0,0) 70%);pointer-events:none}
+.research-shell header::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:36px 36px;mask-image:linear-gradient(115deg,#000 0%,transparent 70%);-webkit-mask-image:linear-gradient(115deg,#000 0%,transparent 70%)}
+.research-shell header>*{position:relative;z-index:1}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;letter-spacing:2.2px;color:#6b4800;font-weight:700}
+.eyebrow::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(20,184,166,.25)}
+.research-shell h1{font-size:clamp(28px,4.6vw,44px);letter-spacing:-1.4px;line-height:1.1;margin:14px 0 6px;color:#2a1c00;font-weight:750}
+.research-shell header p{font-size:17px;color:#5a3d00}
+
+/* role switcher */
+.role-nav{display:flex;width:fit-content;gap:4px;margin:18px 0 6px;padding:4px;border-radius:12px;background:rgba(255,255,255,.35);
+  border:1px solid rgba(120,80,0,.2);backdrop-filter:blur(6px)}
+.research-shell .role-nav a{padding:8px 18px;border:0;border-radius:9px;text-decoration:none;color:#5a3d00;font-size:14px;font-weight:600;
+  transition:background .15s,color .15s}
+.research-shell .role-nav a:hover{background:rgba(255,255,255,.45);color:#2a1c00}
+.research-shell .role-nav a[aria-current=page]{background:#fff;color:#2a1c00;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.research-shell .role-nav a:focus-visible{outline:2px solid #2a1c00;outline-offset:2px}
+
+/* prototype notice as a quiet chip row */
+.notice{display:inline-block;margin:14px 0 0;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.4);
+  border:1px solid rgba(120,80,0,.2);color:#5a3d00;font-size:12.5px;letter-spacing:.2px}
+
+/* ---------- layout & cards ---------- */
+.research-shell main{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:22px;counter-reset:step;align-items:start}
+.research-shell section{position:relative;padding:26px 26px 24px;background:var(--card);border:1px solid var(--line);
+  border-radius:18px;box-shadow:var(--shadow);transition:box-shadow .2s,transform .2s}
+.research-shell section:hover{box-shadow:0 2px 4px rgba(10,27,51,.07),0 16px 34px -14px rgba(10,27,51,.26)}
+.research-shell section::before{content:"";position:absolute;left:26px;right:26px;top:0;height:3px;border-radius:0 0 4px 4px;
+  background:linear-gradient(90deg,var(--blue),var(--teal));opacity:.85}
+.research-shell h2{display:flex;align-items:center;gap:12px;font-size:19px;letter-spacing:-.3px;margin:2px 0 20px}
+.research-shell h2::before{counter-increment:step;content:counter(step);flex:none;display:inline-grid;place-items:center;
+  width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;
+  font-size:13px;font-weight:700;box-shadow:0 4px 10px -3px rgba(245,184,0,.55)}
+.research-shell section:has(.activity) h2::before{content:"";width:10px;height:10px;border-radius:50%;
+  background:var(--teal);box-shadow:0 0 0 4px rgba(20,184,166,.22);counter-increment:none}
+.research-shell section>p:first-of-type{color:var(--muted);line-height:1.6;margin-top:-8px}
+
+/* ---------- forms ---------- */
+.research-shell label{display:block;font-size:12.5px;font-weight:650;color:#2a3b55;margin:16px 0;letter-spacing:.1px}
+.research-shell input:not([type=checkbox]),.research-shell textarea,.research-shell select{display:block;width:100%;
+  padding:12px 13px;margin-top:7px;border:1px solid #c4d0e0;border-radius:10px;background:#fbfcfe;font:inherit;font-weight:400;
+  color:var(--ink);transition:border-color .15s,box-shadow .15s,background .15s}
+.research-shell textarea{resize:vertical;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;line-height:1.55}
+.research-shell input:not([type=checkbox]):hover,.research-shell textarea:hover,.research-shell select:hover{border-color:#9db2cc}
+.research-shell input:not([type=checkbox]):focus,.research-shell textarea:focus,.research-shell select:focus{
+  outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 4px rgba(245,184,0,.16)}
+.research-shell input:disabled{background:#eef2f7;color:#6c7b90}
+.research-shell textarea[readonly]{background:#f1f5fa}
+.check{display:flex;align-items:flex-start;gap:10px;line-height:1.55;padding:12px 14px;border-radius:12px;background:var(--warn-bg);
+  color:var(--warn);font-weight:600}
+.check input{margin-top:3px;width:16px;height:16px;accent-color:var(--blue)}
+
+/* ---------- buttons ---------- */
+.research-shell button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border:0;border-radius:10px;
+  color:#2a1c00;font:inherit;font-size:13.5px;font-weight:650;cursor:pointer;letter-spacing:.1px;
+  background:linear-gradient(135deg,#ffd23f,#f2a900);box-shadow:0 6px 14px -6px rgba(245,184,0,.65);
+  transition:transform .12s,box-shadow .15s,filter .15s}
+.research-shell button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.07);box-shadow:0 10px 20px -8px rgba(245,184,0,.7)}
+.research-shell button:active:not(:disabled){transform:translateY(0);filter:brightness(.97)}
+.research-shell button:focus-visible{outline:3px solid rgba(245,184,0,.35);outline-offset:2px}
+.research-shell button:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;filter:grayscale(.3)}
+.research-shell .actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ---------- text helpers ---------- */
+.hint{font-size:12.5px;line-height:1.65;color:var(--muted);margin:14px 0 0}
+.research-shell button+.hint,.research-shell button+p{margin-top:14px}
+.status{display:inline-block;color:var(--ok);background:var(--ok-bg);padding:9px 13px;border-radius:10px;font-weight:600;font-size:13px}
+dt{font-size:11.5px;color:var(--muted);margin-top:15px;text-transform:uppercase;letter-spacing:.8px;font-weight:650}
+dd{margin:4px 0 15px;font-size:14px}
+.research-shell code{overflow-wrap:anywhere;font-size:12px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  background:#fdf3d2;color:#7a5200;padding:2px 6px;border-radius:6px}
+
+/* ---------- request / credential cards ---------- */
+.request-card{border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;background:#fafcff;
+  transition:border-color .15s,box-shadow .15s}
+.request-card:hover{border-color:#b7c9e2;box-shadow:0 6px 16px -10px rgba(10,27,51,.3)}
+.request-card pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;background:#0f1b2e;color:#ffe9a8;padding:12px;border-radius:10px}
+.research-shell details{margin-bottom:14px;padding:10px 12px;border:1px dashed #c4d0e0;border-radius:10px;background:#fafcff}
+.research-shell details summary{cursor:pointer;font-weight:600;color:#2a3b55}
+
+/* ---------- activity log (terminal look) ---------- */
+.activity{min-height:160px;max-height:300px;overflow:auto;font-size:12.5px;line-height:1.6;padding:14px;border-radius:12px;
+  background:#0b1424;color:#b9c8e0;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.activity:empty::before{content:"Waiting for activity\2026";color:#5d7194}
+.activity p{margin:0 0 8px;padding-left:12px;border-left:2px solid #2b3d5c;overflow-wrap:anywhere}
+.activity p:first-child{color:#8df0c4;border-left-color:var(--teal)}
+.activity::-webkit-scrollbar{width:8px}.activity::-webkit-scrollbar-thumb{background:#243452;border-radius:8px}
+
+/* ---------- footer ---------- */
+.research-shell footer{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);text-align:center;line-height:1.7}
+.research-shell a{color:#9a6a00}
+
+@media(max-width:820px){.research-shell main{grid-template-columns:1fr}.research-shell{padding:18px 14px 36px}
+  .research-shell header{padding:26px 22px 24px;border-radius:18px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ---------- icons & explanation lines ---------- */
+.research-shell h2[data-icon]::before{content:attr(data-icon);counter-increment:none;width:34px;height:34px;border-radius:11px;font-size:18px;
+  background:linear-gradient(135deg,#fff3c4,#ffe9a8);box-shadow:inset 0 0 0 1px rgba(245,184,0,.18)}
+.research-shell section:has(.activity) h2[data-icon]::before{width:34px;height:34px;border-radius:11px;box-shadow:inset 0 0 0 1px rgba(20,184,166,.3);background:linear-gradient(135deg,#fff3c4,#ffe9a8)}
+.research-shell .lede{color:var(--muted);font-size:13.5px;line-height:1.6;margin:-8px 0 18px}
+.research-shell h2+.lede+p{margin-top:0}
+
+/* ---------- round 3: depth, motion, polish ---------- */
+body{background:
+  radial-gradient(circle at 1px 1px,rgba(180,120,0,.14) 1px,transparent 1.4px) 0 0/22px 22px,
+  radial-gradient(1100px 520px at 95% -10%,rgba(255,200,40,.28),transparent 60%),
+  radial-gradient(800px 420px at -10% 10%,rgba(255,140,0,.12),transparent 55%),var(--bg)}
+.research-shell{max-width:1180px}
+
+/* hero */
+.research-shell header{padding:44px 44px 36px;border-radius:28px;
+  background:linear-gradient(120deg,#ff9f0a 0%,#ffc61a 45%,#ffe58a 100%);
+  box-shadow:0 30px 60px -28px rgba(176,100,0,.7),inset 0 1px 0 rgba(255,255,255,.6)}
+.research-shell header::after{width:420px;height:420px;right:-120px;top:-160px;
+  background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.75),rgba(255,255,255,0) 68%);animation:drift 9s ease-in-out infinite alternate}
+.research-shell h1{font-size:clamp(32px,5.4vw,56px);letter-spacing:-2px;font-weight:800;
+  background:linear-gradient(180deg,#2a1c00 30%,#7a4a00);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.55);box-shadow:0 2px 8px -3px rgba(120,70,0,.4)}
+.eyebrow::before{background:#16a34a;box-shadow:0 0 0 0 rgba(22,163,74,.6);animation:pulse 2s infinite}
+.role-nav{background:rgba(255,255,255,.5);box-shadow:0 8px 20px -10px rgba(120,70,0,.5)}
+.research-shell .role-nav a[aria-current=page]{background:#2a1c00;color:#ffd23f;box-shadow:0 6px 14px -6px rgba(42,28,0,.6)}
+.notice{background:rgba(42,28,0,.88);color:#ffe9a8;border:0;padding:9px 16px;font-weight:600;letter-spacing:.3px}
+
+/* cards: entrance + hover lift + accent bar */
+.research-shell section{border-radius:22px;border:1px solid #f0e3bf;animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+.research-shell main>section:nth-child(2){animation-delay:.07s}
+.research-shell main>section:nth-child(3){animation-delay:.14s}
+.research-shell main>section:nth-child(4){animation-delay:.21s}
+.research-shell section:hover{transform:translateY(-3px);box-shadow:0 4px 8px rgba(120,80,0,.08),0 26px 44px -20px rgba(176,100,0,.4)}
+.research-shell section::before{height:5px;left:0;right:0;border-radius:22px 22px 0 0;background:linear-gradient(90deg,#ff9f0a,#ffd23f,#ff9f0a);background-size:200% 100%;animation:slide 6s linear infinite}
+.research-shell h2{font-size:21px;letter-spacing:-.5px;margin-top:6px}
+.research-shell h2[data-icon]::before{width:42px;height:42px;border-radius:14px;font-size:22px;
+  background:linear-gradient(145deg,#fff7d6,#ffe08a);box-shadow:0 6px 14px -6px rgba(176,100,0,.55),inset 0 0 0 1px rgba(255,255,255,.8);transition:transform .25s}
+.research-shell section:hover h2[data-icon]::before{transform:rotate(-8deg) scale(1.08)}
+.research-shell section:has(.activity) h2[data-icon]::before{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#fff7d6,#ffe08a);box-shadow:0 6px 14px -6px rgba(176,100,0,.55)}
+.research-shell .lede{padding:10px 14px;border-left:3px solid #ffc61a;background:linear-gradient(90deg,#fff8e1,transparent);border-radius:0 10px 10px 0;margin:-4px 0 20px;color:#6b5a30}
+
+/* inputs & buttons */
+.research-shell input:not([type=checkbox]),.research-shell textarea,.research-shell select{background:#fffdf6;border-color:#ecdcae;border-radius:12px}
+.research-shell input:not([type=checkbox]):focus,.research-shell textarea:focus,.research-shell select:focus{border-color:#f2a900;box-shadow:0 0 0 4px rgba(255,190,20,.3)}
+.research-shell button{position:relative;overflow:hidden;border-radius:12px;padding:12px 20px;
+  background:linear-gradient(135deg,#ffd23f,#ff9f0a);box-shadow:0 8px 18px -8px rgba(230,130,0,.9),inset 0 1px 0 rgba(255,255,255,.5)}
+.research-shell button::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);transition:left .5s}
+.research-shell button:hover:not(:disabled)::after{left:130%}
+.research-shell button:focus-visible{outline:3px solid rgba(42,28,0,.5)}
+.check{border:1px solid #f3d27a;background:linear-gradient(135deg,#fff4c9,#ffe9a1)}
+
+/* log, cards, chips */
+.activity{background:linear-gradient(180deg,#1c1500,#120d00);color:#f3e3b0;box-shadow:inset 0 0 0 1px rgba(255,200,40,.15),inset 0 12px 24px -16px #000}
+.activity p{border-left-color:#5a4410}
+.activity p::before{content:"› ";color:#ffc61a}
+.activity p:first-child{color:#9bf0b8;border-left-color:#22c55e;animation:flash 1.2s ease-out}
+.activity:empty::before{color:#8a7030}
+.request-card{background:#fffcf2;border-color:#f0e3bf;border-radius:16px}
+.request-card:hover{border-color:#ffc61a}
+.status,.research-shell code{background:#fff1bf;color:#7a4a00}
+.research-shell footer{border-top:1px dashed #e8d49a}
+
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes slide{to{background-position:200% 0}}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+@keyframes drift{to{transform:translate(-40px,30px) scale(1.1)}}
+@keyframes flash{from{background:rgba(34,197,94,.25)}to{background:transparent}}
+@media(max-width:820px){.research-shell header{padding:30px 22px 26px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.research-shell section:has(.activity) h2[data-icon]::before{content:attr(data-icon);font-size:22px}

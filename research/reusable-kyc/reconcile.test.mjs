@@ -1,0 +1,23 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {ensureChainState,reconcile} from './reconcile.mjs';import {Issuer,keyPair} from './protocol.mjs';import{Lifecycle}from'./lifecycle.mjs';import{ApprovalQueue}from'./approvals.mjs';
+test('already mined state is reconciled without rebroadcast',async()=>{const step={state:'submitting'};await ensureChainState({id:'a',target:1,step,save(){},status:async()=>1,submit(){assert.fail('rebroadcast');}});assert.equal(step.state,'confirmed');});
+test('unknown broadcast and pending transaction never rebroadcast',async()=>{for(const step of [{state:'submitting'},{state:'submitted',hash:'tx'}])await assert.rejects(ensureChainState({id:'a',target:1,step,save(){},status:async()=>0,receipt:async()=>null,submit(){assert.fail('rebroadcast');}}));});
+test('conflicting and reverted chain states stop for review',async()=>{for(const current of [2,0])await assert.rejects(ensureChainState({id:'a',target:1,step:{hash:'tx'},save(){},status:async()=>current,receipt:async()=>({status:0}),submit(){assert.fail('rebroadcast');}}));});
+test('durable intent resumes same credential after lost registration response',async()=>{const issuer=new Issuer('a'),lifecycle=new Lifecycle(issuer),q=new ApprovalQueue(),holder=keyPair();const request=q.create('issue',{holderPublicKey:holder.publicKey.export({type:'spki',format:'pem'})},{}),item=q.items.get(request.id);item.status='processing';let first=true,calls=[];const context={issuer,lifecycle,save(){},adapter:async()=>({ensure:async(id)=>{calls.push(id);if(first){first=false;throw Error('lost response');}}})};await assert.rejects(reconcile(item,context));const original=item.chainPlan.id,result=item.chainPlan.result;assert.equal(item.status,'needs-review');await reconcile(item,context);assert.deepEqual(calls,[original,original]);assert.equal(issuer.records.size,1);assert.equal(item.result,result);assert.equal(item.status,'approved');assert.equal(issuer.records.get(original).revoked,false);});
+test('unfinished approvals survive expiry and never expose recovery result to admin listing',()=>{let now=0;const q=new ApprovalQueue(()=>now),r=q.create('issue',{},{}),item=q.items.get(r.id);item.chainPlan={result:{recoveryToken:'secret'},register:{},revoke:{}};item.status='needs-review';now=9999999;assert.equal(q.list().length,1);assert.equal(JSON.stringify(q.list()).includes('secret'),false);assert.equal(q.get(r.id),item);});
+test('competing recovery plans cannot create two replacements',async()=>{const issuer=new Issuer('a'),lifecycle=new Lifecycle(issuer),holder=keyPair(),next=keyPair(),credential=issuer.issue(holder.publicKey,{simulatedIdentityApproved:true}),oldId=JSON.parse(Buffer.from(credential.body,'base64url')).id;const operation={request:{credentialId:oldId,newPublicKey:next.publicKey.export({type:'spki',format:'pem'})}};const first={id:'first',status:'processing',operation},second={id:'second',status:'processing',operation};const context={issuer,lifecycle,save(){},adapter:async()=>({ensure:async()=>{throw Error('offline');}})};await assert.rejects(reconcile(first,context));await assert.rejects(reconcile(second,context));assert.equal(issuer.records.size,2);assert.equal(issuer.records.get(oldId).replacementOperation,'first');});
+
+ test('outbox persists signed bytes before broadcast and retries the same transaction',async()=>{
+  const step={};let durable,broadcasts=0,current=0;
+  const context={id:'a',target:1,step,status:async()=>current,receipt:async()=>null,
+   prepare:async()=>({rawTransaction:'signed',hash:'hash',nonce:4}),validate:async()=>{},
+   save(){durable=structuredClone(step);},broadcast:async value=>{assert.equal(durable.rawTransaction,'signed');assert.equal(value.hash,'hash');broadcasts++;if(broadcasts===1)throw Error('lost response');current=1;}};
+  await assert.rejects(ensureChainState(context));assert.equal(step.state,'prepared');
+  await ensureChainState({...context,prepare:()=>assert.fail('must reuse transaction')});assert.equal(step.state,'confirmed');assert.equal(broadcasts,2);
+ });
+ test('outbox refuses mismatched binding even when target state is already present',async()=>{
+  await assert.rejects(ensureChainState({id:'a',target:1,step:{rawTransaction:'bad'},validate:async()=>{throw Error('binding');},status:()=>assert.fail('must validate first')}),/binding/);
+ });
+ test('reverted outbox is never rebroadcast',async()=>{
+  await assert.rejects(ensureChainState({id:'a',target:1,step:{rawTransaction:'signed',hash:'hash'},validate:async()=>{},status:async()=>0,receipt:async()=>({status:0}),broadcast:()=>assert.fail('reverted')}),e=>e.code==='TRANSACTION_REVERTED');
+ });
